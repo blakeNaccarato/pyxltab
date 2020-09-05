@@ -2,6 +2,8 @@
 Read the files to be modified.
 """
 
+# TODO: Migrate useful content into `pyxltab`, remove the rest.
+
 __all__ = ["read"]
 
 from glob import glob

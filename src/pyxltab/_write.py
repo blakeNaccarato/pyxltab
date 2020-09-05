@@ -2,6 +2,8 @@
 Write the updated cells to the file.
 """
 
+# TODO: Migrate useful content into `pyxltab`, remove the rest.
+
 __all__ = ["write"]
 
 from decimal import Decimal

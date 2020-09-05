@@ -1,6 +1,3 @@
-# Example
-*.xlsx
-
 # Linter config
 .flake8
 .pylintrc

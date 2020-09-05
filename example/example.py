@@ -1,10 +1,20 @@
 """
-Example script.
+Example demonstrating the usage of `pyxltab`.
 """
 
-import pyxlrand
+import pyxltab
 
-IN_DIR = r"example"
+WORKBOOK_FILENAME = r"example\\example.xlsx"
 
-file_structure = pyxlrand.read(in_dir=IN_DIR)
-pyxlrand.write(file_structure)
+
+def main():
+    """
+    Example demonstrating the usage of `pyxltab`.
+    """
+
+    workbook_structure = pyxltab.get_structure(WORKBOOK_FILENAME)
+    assert True
+
+
+if __name__ == "__main__":
+    main()

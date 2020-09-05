@@ -1,5 +1,5 @@
 """
-`pyxlrand`: Randomize data in Excel spreadsheets.
+Extends `openpyxl` classes for easier operation on Excel tables.
 """
 
 from os import path
