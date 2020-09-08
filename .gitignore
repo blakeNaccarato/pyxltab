@@ -1,3 +1,6 @@
+# Excel
+~$*.xlsx
+
 # Linter config
 .flake8
 .pylintrc
