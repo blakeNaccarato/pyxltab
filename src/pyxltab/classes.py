@@ -72,7 +72,7 @@ class Table(Meta):
         self.columns: Dict[str, Column] = {}
 
         for openpyxl_column in openpyxl_table.tableColumns:
-            self.columns[openpyxl_column.name] = Column(self, openpyxl_column)
+            self.columns[openpyxl_column.name] = Column(openpyxl_column, parent=self)
 
         self.cells: Optional[List[ColumnCells]] = None
         super().__init__(children=self.columns)
@@ -115,13 +115,13 @@ class Column:
 
         if header_row_count == 1:
             header = sheet.openpyxl_sheet.cell(row=table.first_row, column=self.col_num)
-        elif header_row_count is None:
+        elif header_row_count is None or header_row_count == 0:
             header = None
             header_row_count = 0
 
         if totals_row_count == 1:
             total = sheet.openpyxl_sheet.cell(row=table.last_row, column=self.col_num)
-        elif totals_row_count is None:
+        elif totals_row_count is None or totals_row_count == 0:
             total = None
             totals_row_count = 0
 
