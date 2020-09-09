@@ -5,9 +5,9 @@ to be returned.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from openpyxl.cell.cell import Cell as openpyxl_Cell
 from openpyxl.utils.cell import range_boundaries
@@ -29,11 +29,11 @@ class ChildrenMapping(Mapping):
 
     def __init__(
         self,
-        children: Union[Dict[str, Sheet], Dict[str, Table], Dict[str, Column]],
+        children: Dict[str, Any],
     ):
         self._children = children
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         return self._children[key]
 
     def __iter__(self):
@@ -88,20 +88,18 @@ class Table(ChildrenMapping):
         for openpyxl_column in openpyxl_table.tableColumns:
             self.columns[openpyxl_column.name] = Column(openpyxl_column, parent=self)
 
-        self.cells: Optional[List[ColumnCells]] = None
         super().__init__(children=self.columns)
 
-    def get_cells(self):
+    def get_cells(self) -> List[ColumnCells]:
         """
         Get the cells in the table as a list of `ColumnCells` objects.
         """
-        self.cells = {
-            column_name: column.get_cells() for (column_name, column) in self.items()
-        }
-        return self.cells
+
+        table_cells = [column.get_cells() for column in self.values()]
+        return table_cells
 
 
-class Column:
+class Column(Sequence):
     """
     Extends the `openpyxl.worksheet.table.TableColumn` class from `openpyxl`.
     """
@@ -112,19 +110,30 @@ class Column:
 
         self.col_num = parent.first_col + len(parent.columns)
 
-        self.cells: Optional[ColumnCells] = None
+        self.column_cells: Optional[ColumnCells] = None
+        self.header: Optional[openpyxl_Cell] = None
+        self.cells: Optional[List[openpyxl_Cell]] = None
+        self.total: Optional[openpyxl_Cell] = None
 
-    def __iter__(self):
+    def __getitem__(self, index):
         """
-        Iterate over the `cells` attribute.
+        Subscript into the `cells` attribute, getting the cells first if necessary.
         """
 
         if self.cells is None:
             self.get_cells()
+        return self.column_cells[index]
 
-        return iter(self.cells)
+    def __len__(self):
+        """
+        Get the length of the `cells` attribute, getting the cells first if necessary.
+        """
 
-    def get_cells(self):
+        if self.cells is None:
+            self.get_cells()
+        return len(self.column_cells)
+
+    def get_cells(self) -> ColumnCells:
         """
         Get cells in this column as a `ColumnCells` object.
         """
@@ -156,12 +165,16 @@ class Column:
             )
         )
 
-        self.cells = ColumnCells(header, between, total)
-        return self.cells
+        self.column_cells = ColumnCells(header, between, total)
+        self.header = self.column_cells.header
+        self.cells = self.column_cells.between
+        self.total = self.column_cells.total
+
+        return self.column_cells
 
 
 @dataclass
-class ColumnCells:
+class ColumnCells(Sequence):
     """
     Contains a column of cells from an Excel table.
     """
@@ -170,9 +183,16 @@ class ColumnCells:
     between: List[openpyxl_Cell]
     total: Optional[openpyxl_Cell]
 
-    def __iter__(self):
+    def __getitem__(self, index):
         """
-        Iterate over the `between` attribute.
+        Subscript into the `between` attribute.
         """
 
-        return iter(self.between)
+        return self.between[index]
+
+    def __len__(self):
+        """
+        Get the length of the `between` attribute.
+        """
+
+        return len(self.between)
