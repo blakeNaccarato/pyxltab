@@ -3,8 +3,11 @@ Extensions to `openpyxl` classes allowing for the cells corresponding to table c
 to be returned.
 """
 
+from __future__ import annotations
+
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from openpyxl.cell.cell import Cell as openpyxl_Cell
 from openpyxl.utils.cell import range_boundaries
@@ -14,22 +17,33 @@ from openpyxl.worksheet.table import TableColumn as openpyxl_TableColumn
 from openpyxl.worksheet.worksheet import Worksheet as openpyxl_Worksheet
 
 
-class Meta:
+class ChildrenMapping(Mapping):
     """
-    Iterate over children.
+    A `dict`-like class that indexes into one of its attributes designated as its
+    `children`. The attribute must be a `dict` itself. Allows returning children like
+    `ChildrenMapping["index"]`. Can iterate over keys and values of children like `for
+    (key, value) in ChildrenMapping:...`, or just the values like `for value in
+    ChildrenMapping.values():`. The length of a `ChildrenMapping` is the length of its
+    `children` dictionary.
     """
 
-    def __init__(self, children: Optional[Union[Dict[str, Any], List[openpyxl_Cell]]]):
+    def __init__(
+        self,
+        children: Union[Dict[str, Sheet], Dict[str, Table], Dict[str, Column]],
+    ):
         self._children = children
 
+    def __getitem__(self, key):
+        return self._children[key]
+
     def __iter__(self):
-        return iter(self._children.values())
+        return iter(self._children)
 
-    def __getitem__(self, index):
-        return self._children[index]
+    def __len__(self):
+        return len(self._children)
 
 
-class Book(Meta):
+class Book(ChildrenMapping):
     """
     Extends the `openpyxl.workbook.workbook.Workbook` class from `openpyxl`.
     """
@@ -43,7 +57,7 @@ class Book(Meta):
         super().__init__(children=self.sheets)
 
 
-class Sheet(Meta):
+class Sheet(ChildrenMapping):
     """
     Extends the `openpyxl.worksheet.worksheet.Worksheet` class from `openpyxl`.
     """
@@ -58,7 +72,7 @@ class Sheet(Meta):
         super().__init__(children=self.tables)
 
 
-class Table(Meta):
+class Table(ChildrenMapping):
     """
     Extends the `openpyxl.worksheet.table.Table` class from `openpyxl`.
     """
@@ -81,10 +95,9 @@ class Table(Meta):
         """
         Get the cells in the table as a list of `ColumnCells` objects.
         """
-        table_cells = [column.get_cells() for column in self]
         self.cells = {
-            column.openpyxl_column.name: column_cells
-            for (column, column_cells) in zip(self, table_cells)
+            column_name: column.get_cells()
+            for (column_name, column) in self.items()
         }
         return self.cells
 
@@ -101,6 +114,13 @@ class Column:
         self.col_num = parent.first_col + len(parent.columns)
 
         self.cells: Optional[ColumnCells] = None
+
+    def __iter__(self):
+        """
+        Iterate over the `cells` attribute.
+        """
+
+        return iter(self.cells)
 
     def get_cells(self):
         """
@@ -147,3 +167,10 @@ class ColumnCells:
     header: Optional[openpyxl_Cell]
     between: List[openpyxl_Cell]
     total: Optional[openpyxl_Cell]
+
+    def __iter__(self):
+        """
+        Iterate over the `between` attribute.
+        """
+
+        return iter(self.between)
