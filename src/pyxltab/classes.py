@@ -70,12 +70,12 @@ class Table(Meta):
             openpyxl_table.ref
         )
         self.columns: Dict[str, Column] = {}
-        super().__init__(children=self.columns)
 
         for openpyxl_column in openpyxl_table.tableColumns:
             self.columns[openpyxl_column.name] = Column(self, openpyxl_column)
 
         self.cells: Optional[List[ColumnCells]] = None
+        super().__init__(children=self.columns)
 
     def get_cells(self):
         """
@@ -89,19 +89,18 @@ class Table(Meta):
         return self.cells
 
 
-class Column(Meta):
+class Column:
     """
     Extends the `openpyxl.worksheet.table.TableColumn` class from `openpyxl`.
     """
 
-    def __init__(self, parent: Table, openpyxl_column: openpyxl_TableColumn):
+    def __init__(self, openpyxl_column: openpyxl_TableColumn, parent: Table):
         self.parent = parent
         self.openpyxl_column = openpyxl_column
 
         self.col_num = parent.first_col + len(parent.columns)
 
         self.cells: Optional[ColumnCells] = None
-        super().__init__(children=None)
 
     def get_cells(self):
         """
@@ -114,17 +113,15 @@ class Column(Meta):
 
         sheet = table.parent
 
-        if table.openpyxl_table.headerRowCount == 1:
+        if header_row_count == 1:
             header = sheet.openpyxl_sheet.cell(row=table.first_row, column=self.col_num)
-            header_row_count = 1
-        else:
+        elif header_row_count is None:
             header = None
             header_row_count = 0
 
-        if table.openpyxl_table.totalsRowCount == 1:
+        if totals_row_count == 1:
             total = sheet.openpyxl_sheet.cell(row=table.last_row, column=self.col_num)
-            totals_row_count = 1
-        else:
+        elif totals_row_count is None:
             total = None
             totals_row_count = 0
 
