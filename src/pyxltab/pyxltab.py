@@ -28,9 +28,10 @@ def get_tables(
     if isinstance(book, classes.openpyxl_Workbook):
         book = attach(book)
 
-    tables: Dict[str, classes.Table] = {}
-
-    for sheet in book:
-        tables.update(sheet.tables)
+    tables = {
+        table_name: table
+        for sheet in book.values()
+        for (table_name, table) in sheet.items()
+    }
 
     return tables
