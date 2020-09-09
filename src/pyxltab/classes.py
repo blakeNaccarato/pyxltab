@@ -96,8 +96,7 @@ class Table(ChildrenMapping):
         Get the cells in the table as a list of `ColumnCells` objects.
         """
         self.cells = {
-            column_name: column.get_cells()
-            for (column_name, column) in self.items()
+            column_name: column.get_cells() for (column_name, column) in self.items()
         }
         return self.cells
 
@@ -119,6 +118,9 @@ class Column:
         """
         Iterate over the `cells` attribute.
         """
+
+        if self.cells is None:
+            self.get_cells()
 
         return iter(self.cells)
 
