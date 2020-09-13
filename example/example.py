@@ -5,7 +5,7 @@ Examples demonstrating the usage of `pyxltab`.
 import openpyxl
 import pyxltab
 
-WORKBOOK_FILENAME = r"example\\example.xlsx"
+WORKBOOK_FILENAME = r"example\example.xlsx"
 
 
 def get_cells_from_table():
