@@ -95,8 +95,7 @@ class Table(ChildrenMapping):
         Get the cells in the table as a list of `ColumnCells` objects.
         """
 
-        table_cells = [column.get_cells() for column in self.values()]
-        return table_cells
+        return [column.get_cells() for column in self.values()]
 
 
 class Column(Sequence):

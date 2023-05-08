@@ -14,8 +14,7 @@ def attach(openpyxl_book: classes.openpyxl_Workbook) -> classes.Book:
     Attach to an `openpyxl` workbook, allowing other operations to be performed.
     """
 
-    book = classes.Book(openpyxl_book)
-    return book
+    return classes.Book(openpyxl_book)
 
 
 def get_tables(
@@ -28,10 +27,8 @@ def get_tables(
     if isinstance(book, classes.openpyxl_Workbook):
         book = attach(book)
 
-    tables = {
+    return {
         table_name: table
         for sheet in book.values()
         for (table_name, table) in sheet.items()
     }
-
-    return tables
