@@ -15,8 +15,7 @@ def get_cells_from_table():
 
     openpyxl_book = openpyxl.load_workbook(WORKBOOK_FILENAME)
     book = pyxltab.attach(openpyxl_book)
-    cells = book["Sheet1"]["Table1"].get_cells()
-    return cells
+    return book["Sheet1"]["Table1"].get_cells()
 
 
 def get_cells_from_column():
@@ -25,8 +24,7 @@ def get_cells_from_column():
     """
     openpyxl_book = openpyxl.load_workbook(WORKBOOK_FILENAME)
     book = pyxltab.attach(openpyxl_book)
-    cells = book["Sheet1"]["Table1"]["Column1"].get_cells()
-    return cells
+    return book["Sheet1"]["Table1"]["Column1"].get_cells()
 
 
 def get_cells_from_all_tables():
@@ -35,8 +33,7 @@ def get_cells_from_all_tables():
     """
     openpyxl_book = openpyxl.load_workbook(WORKBOOK_FILENAME)
     tables = pyxltab.get_tables(openpyxl_book)
-    table_cells = [table.get_cells() for table in tables.values()]
-    return table_cells
+    return [table.get_cells() for table in tables.values()]
 
 
 if __name__ == "__main__":
